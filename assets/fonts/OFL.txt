@@ -1,0 +1,7 @@
+Fonts used on this site, each licensed under the SIL Open Font License 1.1 (https://openfontlicense.org):
+
+- Archivo, Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
+- IBM Plex Mono, Copyright 2017 IBM Corp. with Reserved Font Name "Plex" (https://github.com/IBM/plex)
+
+Files are the Latin and Latin Extended subsets as served by Google Fonts, trimmed to the characters the site uses.
+Archivo is narrowed to width 100 to 125 and weight 400 to 900.
