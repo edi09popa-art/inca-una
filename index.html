@@ -23,6 +23,7 @@
 <body>
 <a class="skip" href="#main">Sari la conținut</a>
 <div class="env" aria-hidden="true"></div>
+<div class="prog" aria-hidden="true"><i></i></div>
 
 <nav class="nav" aria-label="Principal">
   <a class="brand" href="#top" aria-label="Încă Una, sus">
@@ -44,6 +45,7 @@
   <a href="#cunoscut"><span>Sună cunoscut?</span></a>
   <a href="#ideea"><span>Ideea</span></a>
   <a href="#incearca"><span>Încearcă</span></a>
+  <a href="#directie"><span>Direcția</span></a>
   <a href="#programe"><span>Ce poți lua</span></a>
   <a href="#mancare"><span>Mâncare</span></a>
   <a href="#cum"><span>Cum merge</span></a>
@@ -82,13 +84,13 @@
 
       <div class="band b4" data-a="0.8" data-b="1" data-ramp="0.12">
         <div class="cap">
-          <p class="kick">Antrenamente · Mâncare · Coaching online</p>
+          <p class="kick"><span>Antrenamente · Mâncare</span><span>Coaching online</span></p>
           <h1 class="split" data-fx="rise">Încă una.</h1>
         </div>
         <div class="bot">
           <p class="sub">Programe de antrenament și planuri de mâncare pe care le poți ține și în săptămânile proaste.</p>
           <div class="cta-row">
-            <a class="btn" href="#start">Vreau să încep</a>
+            <a class="btn" href="#start">Vreau să încep<i class="arr" aria-hidden="true"></i></a>
             <a class="btn ghost" href="#programe">Vezi ce poți lua</a>
           </div>
         </div>
@@ -101,6 +103,8 @@
 </section>
 
 <div class="below">
+
+<div class="mq" aria-hidden="true"><div class="mq-track"><span>Încă o repetare</span><i></i><span>Încă o săptămână</span><i></i><span>Încă un disc</span><i></i><span>Încă o masă bună</span><i></i><span>Încă o repetare</span><i></i><span>Încă o săptămână</span><i></i><span>Încă un disc</span><i></i><span>Încă o masă bună</span><i></i><span>Încă o repetare</span><i></i><span>Încă o săptămână</span><i></i><span>Încă un disc</span><i></i><span>Încă o masă bună</span><i></i></div></div>
 
 <section class="sec s-known" id="cunoscut" aria-labelledby="h-known">
   <div class="wrap known">
@@ -138,6 +142,11 @@
         <p class="rv">La fel merge și cu mâncarea, și cu somnul. Nu schimbi tot de luni. Mai pui una.</p>
       </div>
     </div>
+    <ul class="stats">
+      <li class="rv"><b class="count" data-to="1.25" data-dec="2">1,25</b><span>kg pe fiecare parte, în fiecare săptămână</span></li>
+      <li class="rv"><b class="count" data-to="12" data-dec="0">12</b><span>săptămâni, una după alta</span></li>
+      <li class="rv"><b class="count" data-from="20" data-to="47.5" data-dec="1">47,5</b><span>kg pe bară la final, de la 20</span></li>
+    </ul>
     <ol class="rules">
       <li class="rule rv">
         <span class="disc d1" aria-hidden="true"><b>1,25</b></span>
@@ -163,22 +172,11 @@
     <header class="try-head">
       <p class="kicker rv">Încearcă</p>
       <h2 id="h-try" class="rv">Fă trei repetări. Vezi o săptămână din program.</h2>
-      <p class="lede rv" id="rep-help">Ține apăsat până sus. Fiecare repetare îți arată o zi.</p>
+      <p class="lede rv" id="rep-help">Ține apăsat: jos și înapoi sus. Fiecare repetare îți arată o zi.</p>
     </header>
     <div class="try">
       <div class="rig rv">
-        <svg class="rig-svg" viewBox="0 0 320 250" aria-hidden="true">
-          <path class="rig-post" d="M70 28V232M250 28V232"/>
-          <path class="rig-floor" d="M24 232H296"/>
-          <path class="rig-mark" d="M58 64H82M238 64H262M58 196H82M238 196H262"/>
-          <g id="rig-bar">
-            <rect x="18" y="191" width="284" height="8" rx="4" class="rig-steel"/>
-            <rect x="36" y="150" width="20" height="90" rx="5" class="rig-rubber"/>
-            <rect x="264" y="150" width="20" height="90" rx="5" class="rig-rubber"/>
-            <rect x="24" y="174" width="9" height="42" rx="3" class="rig-red"/>
-            <rect x="287" y="174" width="9" height="42" rx="3" class="rig-red"/>
-          </g>
-        </svg>
+        <canvas class="rig-canvas" id="rig-canvas" width="640" height="560" aria-hidden="true"></canvas>
         <button class="hold" id="hold" type="button" aria-describedby="rep-help">
           <span class="hold-fill" aria-hidden="true"></span>
           <span class="hold-label">Ține apăsat</span>
@@ -224,6 +222,38 @@
   </div>
 </section>
 
+<section class="sec s-dir dark" id="directie" aria-labelledby="h-dir">
+  <div class="wrap dir">
+    <div class="dir-stage rv">
+      <canvas id="dir-canvas" width="640" height="800" role="img" aria-label="Ilustrație: un corp desenat care își schimbă forma pe măsură ce tragi de cursor"></canvas>
+      <div class="dir-slider">
+        <p class="dir-ends" aria-hidden="true"><span>Azi</span><span>Direcția</span></p>
+        <input id="dir-range" type="range" min="0" max="100" value="0" step="1" aria-label="De la azi spre direcția în care mergi">
+      </div>
+      <p class="dir-note">Ilustrație. Arată direcția, nu un termen și nu o garanție.</p>
+    </div>
+    <div class="dir-text">
+      <p class="kicker rv">Direcția</p>
+      <h2 id="h-dir" class="rv">Alege încotro mergi. Trage de disc.</h2>
+      <div class="chips rv" role="radiogroup" aria-label="Încotro mergi">
+        <button type="button" role="radio" aria-checked="true" data-from="plin">Vreau să slăbesc</button>
+        <button type="button" role="radio" aria-checked="false" data-from="slab">Vreau să pun mușchi</button>
+      </div>
+      <p class="lede rv" id="dir-lede">Scazi puțin caloriile, nu tai mâncarea pe jumătate. Faci trei antrenamente pe săptămână, ca să păstrezi mușchii cât se duce grăsimea.</p>
+      <ol class="way rv">
+        <li><b>Întâi</b><span id="dir-w1">energia și somnul</span></li>
+        <li><b>Apoi</b><span id="dir-w2">hainele</span></li>
+        <li><b>Abia apoi</b><span id="dir-w3">oglinda</span></li>
+      </ol>
+      <div class="dir-rec rv">
+        <p class="card-k">Ți se potrivește</p>
+        <p class="dir-rec-name" id="dir-rec">Start Acasă și Farfuria, la 1.800 kcal</p>
+        <a class="btn pick" id="dir-btn" href="#start" data-pick="Start Acasă">Vreau asta<i class="arr" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sec s-shop" id="programe" aria-labelledby="h-shop">
   <div class="wrap">
     <header class="shop-head">
@@ -246,13 +276,14 @@
         <svg class="bundle-disc" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="bd-a"/><circle cx="60" cy="60" r="36" class="bd-b"/><circle cx="60" cy="60" r="11" class="bd-c"/><path d="M60 12v10M60 98v10M12 60h10M98 60h10" class="bd-d"/></svg>
         <p class="price big-price"><b>399</b> lei</p>
         <p class="price-note">577 lei dacă le iei separat</p>
-        <a class="btn pick" href="#start" data-pick="Pachetul Start">Vreau pachetul</a>
+        <a class="btn pick" href="#start" data-pick="Pachetul Start">Vreau pachetul<i class="arr" aria-hidden="true"></i></a>
       </div>
     </article>
 
     <h3 class="shelf-k rv">Antrenament</h3>
     <div class="cards">
       <article class="card rv">
+        <canvas class="mini" data-fig="bw" width="216" height="216" aria-hidden="true"></canvas>
         <p class="card-k">8 săptămâni · acasă</p>
         <h4>Start Acasă</h4>
         <p class="card-d">Trei antrenamente de 30&nbsp;de minute pe săptămână, în sufragerie. Fără echipament sau cu două gantere.</p>
@@ -264,6 +295,7 @@
         <div class="card-foot"><p class="price"><b>149</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Start Acasă">Vreau asta</a></div>
       </article>
       <article class="card rv">
+        <canvas class="mini" data-fig="bar" width="216" height="216" aria-hidden="true"></canvas>
         <p class="card-k">12 săptămâni · sală</p>
         <h4>Sală 3×</h4>
         <p class="card-d">Tot corpul, de trei ori pe săptămână. Știi ce ai de făcut din clipa în care intri pe ușă.</p>
@@ -275,6 +307,7 @@
         <div class="card-foot"><p class="price"><b>199</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Sală 3×">Vreau asta</a></div>
       </article>
       <article class="card rv">
+        <canvas class="mini" data-fig="dl" width="216" height="216" aria-hidden="true"></canvas>
         <p class="card-k">12 săptămâni · sală</p>
         <h4>Forță 4×</h4>
         <p class="card-d">Patru zile, sus și jos. Pentru cine merge deja la sală de câteva luni și bate pasul pe loc.</p>
@@ -290,6 +323,7 @@
     <h3 class="shelf-k rv">Mâncare și curs</h3>
     <div class="cards">
       <article class="card rv">
+        <svg class="mini glyph g-plate" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" class="gl-o"/><g class="gl-spin"><circle cx="50" cy="50" r="27" class="gl-a" pathLength="100" stroke-dasharray="26 74"/><circle cx="50" cy="50" r="27" class="gl-b" pathLength="100" stroke-dasharray="34 66" stroke-dashoffset="-28"/><circle cx="50" cy="50" r="27" class="gl-c" pathLength="100" stroke-dasharray="34 66" stroke-dashoffset="-64"/></g></svg>
         <p class="card-k">Ghid de mâncare · PDF</p>
         <h4>Farfuria</h4>
         <p class="card-d">Cum îți faci farfuria ca să slăbești sau să pui mușchi, fără cântar la fiecare masă.</p>
@@ -301,8 +335,9 @@
         <div class="card-foot"><p class="price"><b>129</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Farfuria">Vreau asta</a></div>
       </article>
       <article class="card rv">
+        <svg class="mini glyph g-plan" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="12" width="56" height="76" rx="9" class="gl-o"/><rect x="32" y="28" width="36" height="5" rx="2.5" class="gl-l l1"/><rect x="32" y="41" width="28" height="5" rx="2.5" class="gl-l l2"/><rect x="32" y="54" width="36" height="5" rx="2.5" class="gl-l l3"/><rect x="32" y="67" width="20" height="5" rx="2.5" class="gl-l l4"/><circle cx="72" cy="76" r="11" class="gl-dot"/><circle cx="72" cy="76" r="3.6" class="gl-hole"/></svg>
         <p class="card-k">Personal · cu nutriționist</p>
-        <h4>Plan alimentar făcut pentru tine</h4>
+        <h4>Planul tău alimentar</h4>
         <p class="card-d">Scris de un nutriționist după ce mănânci tu, programul tău și bugetul tău.</p>
         <ul class="ticks">
           <li>Chestionar și o discuție de 30&nbsp;de minute</li>
@@ -312,6 +347,7 @@
         <div class="card-foot"><p class="price"><b>349</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Plan alimentar făcut pentru mine">Vreau asta</a></div>
       </article>
       <article class="card rv">
+        <svg class="mini glyph g-play" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" class="gl-o"/><circle cx="50" cy="50" r="38" class="gl-prog" pathLength="100" stroke-dasharray="30 70"/><path d="M43 35l22 15-22 15z" class="gl-tri"/></svg>
         <p class="card-k">Curs video · 38 de lecții</p>
         <h4>Bazele</h4>
         <p class="card-d">Tot ce ar fi trebuit să-ți explice cineva în prima zi de sală. Lecții de 5 până la 10&nbsp;minute.</p>
@@ -368,7 +404,7 @@
           <circle cx="80" cy="80" r="62" class="ring-arc ra2" pathLength="100" stroke-dasharray="34 66" stroke-dashoffset="-27"/>
           <circle cx="80" cy="80" r="62" class="ring-arc ra3" pathLength="100" stroke-dasharray="37 63" stroke-dashoffset="-62"/>
         </svg>
-        <div class="ring-mid"><b>1.780</b><span>kcal pe zi</span></div>
+        <div class="ring-mid"><b class="count" data-to="1780" data-dec="0">1.780</b><span>kcal pe zi</span></div>
       </div>
       <ul class="legend rv">
         <li class="lg1"><b>27%</b> proteine, 119&nbsp;g</li>
@@ -485,6 +521,8 @@
   </div>
 </section>
 
+<div class="mq mq-rev" aria-hidden="true"><div class="mq-track"><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i><span>Azi</span><i></i><span>Nu de luni</span><i></i></div></div>
+
 <section class="sec s-start dark" id="start" aria-labelledby="h-start">
   <div class="wrap start">
     <div class="start-text">
@@ -533,7 +571,7 @@
         <textarea id="f-story" name="mesaj" rows="3" placeholder="de ex. Am 34 de ani, lucrez la birou și n-am mai făcut sport din liceu."></textarea>
       </div>
       <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <button class="btn wide" type="submit"><span class="btn-label">Vreau să încep</span></button>
+      <button class="btn wide" type="submit"><span class="btn-label">Vreau să încep</span><i class="arr" aria-hidden="true"></i></button>
       <p class="form-msg err" id="form-err" role="alert" hidden></p>
       <p class="form-msg ok" id="form-ok" role="status" hidden>Am primit. Îți răspundem în cel mult o zi lucrătoare.</p>
       <p class="form-msg note" id="form-preview" role="status" hidden>Aceasta este o previzualizare a site-ului. Formularul nu trimite încă mesaje, deci nu s-a trimis nimic.</p>
@@ -569,6 +607,9 @@
   </div>
 </footer>
 
+<a class="dock" href="#start"><span>Vreau să încep</span><i class="arr" aria-hidden="true"></i></a>
+
+<script src="assets/figure.js" defer></script>
 <script src="assets/app.js" defer></script>
 </body>
 </html>

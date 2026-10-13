@@ -71,7 +71,8 @@
     TL.push(tl); PL.push(P0 + ((j + tl) / STEPS) * (P1 - P0));
   }
 
-  let G = null, burst = null, liftDust = null, dust = [], fontsReady = false, h1Ratio = 0;
+  const FIG = window.IUFig || null;
+  let G = null, burst = null, liftDust = null, dust = [], fontsReady = false, h1Ratio = 0, figBuf = null, figCtx = null;
 
   function fitH1() {
     const h1 = $('.b4 h1');
@@ -84,10 +85,14 @@
       h1Ratio = m.getBoundingClientRect().width / 100 || 5;
       m.remove();
     }
-    const target = G.narrow ? Math.min(G.W - 44, 380) : G.half * 2 * 0.9;
+    const target = G.narrow ? Math.min(G.W - 44, 380) : G.half * 2 * 0.94 - G.hgap;
     /* never taller than the room between the nav and the bar */
     const room = G.y0 - G.lift - (G.narrow ? G.D / 2 + 14 : 24) - 104;
     stage.style.setProperty('--h1', clamp(Math.min(target / h1Ratio, room / 0.9), 34, 190).toFixed(1) + 'px');
+    /* on wide screens the lifter's head sits between the two words, so the gap has to land on the middle of the bar */
+    const ws = $$('.w', h1);
+    stage.style.setProperty('--hgap', G.hgap.toFixed(1) + 'px');
+    stage.style.setProperty('--hshift', (G.hgap && ws.length === 2 ? (ws[1].offsetWidth - ws[0].offsetWidth) / 2 : 0).toFixed(1) + 'px');
   }
 
   function buildScene() {
@@ -100,14 +105,15 @@
     const half = L / 2 - sleeve - collar;
     const y0 = H * (narrow ? 0.53 : 0.56), lift = H * 0.035;
     const barT = Math.max(5, D * 0.062);
-    G = { W, H, narrow, L, D, sleeve, collar, half, cx: W / 2, y0, lift, barT, sleeveT: barT * 1.75, gap: Math.max(1, D * 0.009) };
+    const S = D * 3.889;                                   /* the lifter's height, to the same scale as the plates */
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    G = { W, H, narrow, L, D, sleeve, collar, half, cx: W / 2, y0, lift, barT, sleeveT: barT * 1.75, gap: Math.max(1, D * 0.009), S, dpr, hgap: !narrow && FIG && ctx ? S * 0.15 : 0, hook: narrow ? 0.95 : 0.84 };
     stage.style.setProperty('--bar-y0', y0.toFixed(1) + 'px');
     stage.style.setProperty('--bar-y', (y0 - lift).toFixed(1) + 'px');
     stage.style.setProperty('--shaft', (half * 2).toFixed(1) + 'px');
     stage.style.setProperty('--d', D.toFixed(1) + 'px');
     fitH1();
     if (!ctx) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const r = rng(20261010);
@@ -118,6 +124,26 @@
     dust = Array.from({ length: narrow ? 18 : 34 }, () => ({
       x: r(), y: r(), s: 0.6 + r() * 1.1, a: (0.05 + r() * 0.12).toFixed(3), vx: (r() - 0.5) * 0.008, vy: 0.003 + r() * 0.007
     }));
+  }
+
+  /* the lifter steps under the loaded bar near the end and stands up with it.
+     Drawn on its own layer first, because limbs cut thin clear lines around themselves. */
+  function drawLifter(p, yC, liftU) {
+    const a = smoothstep(p, 0.73, 0.81);
+    if (!FIG || a < 0.01) return;
+    const { H, cx, S, dpr } = G;
+    const drop = (G.lift * (1 - ease5(liftU))) / S + (1 - a) * 0.05;
+    const feet = G.y0 - G.lift + 0.838 * S;
+    const bw = Math.ceil(S * 0.72), top = Math.floor(G.y0 - G.lift - S * 0.21), bh = Math.ceil(Math.min(H - top, S * 1.1));
+    if (!figBuf) { figBuf = doc.createElement('canvas'); figCtx = figBuf.getContext('2d'); }
+    const pw = Math.round(bw * dpr), phh = Math.round(bh * dpr);
+    if (figBuf.width !== pw || figBuf.height !== phh) { figBuf.width = pw; figBuf.height = phh; }
+    figCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    figCtx.clearRect(0, 0, bw, bh);
+    FIG.drawFront(figCtx, bw / 2, feet - top, S, FIG.BUILDS.fit, { arms: 'bar', barY: yC - top, drop }, FIG.STYLES.statue);
+    ctx.globalAlpha = a;
+    ctx.drawImage(figBuf, cx - bw / 2, top, bw, bh);
+    ctx.globalAlpha = 1;
   }
 
   function rr(x, y, w, h, rad) {
@@ -189,7 +215,7 @@
     if (hk > 0.01) {
       const yb = y0 + barT / 2, colW = Math.max(8, barT * 2.2), lip = Math.max(3, barT * 0.45);
       for (const sg of [-1, 1]) {
-        const x = cx + sg * half * 0.62;
+        const x = cx + sg * half * G.hook;
         const g = ctx.createLinearGradient(0, yb, 0, H);
         g.addColorStop(0, `rgba(62,69,81,${hk.toFixed(3)})`); g.addColorStop(0.75, 'rgba(62,69,81,0)');
         ctx.fillStyle = g; ctx.fillRect(x - colW / 2, yb, colW, H - yb);
@@ -213,6 +239,8 @@
       ctx.stroke();
     }
     ctx.setLineDash([]);
+
+    drawLifter(p, yC, liftU);
 
     /* sleeves, plates, collars */
     const plates = plateList(i, t);
@@ -286,7 +314,7 @@
       const e = 1 - Math.pow(1 - lt, 3), al = (1 - lt) * (1 - lt) * 0.55;
       for (let k = 0; k < 44; k++) {
         const q = k * 4, sg = k % 2 ? -1 : 1;
-        const x = cx + sg * (half * 0.62 + (liftDust[q] - 0.5) * half * 0.5) + (liftDust[q + 1] - 0.5) * 60 * e;
+        const x = cx + sg * (half * G.hook + (liftDust[q] - 0.5) * half * 0.3) + (liftDust[q + 1] - 0.5) * 60 * e;
         const y = y0 + barT + liftDust[q + 2] * 70 * e + lt * lt * 46;
         ctx.fillStyle = `rgba(236,237,231,${(al * (0.35 + liftDust[q + 3] * 0.65)).toFixed(3)})`;
         ctx.beginPath(); ctx.arc(x, y, 0.7 + liftDust[q + 3] * 1.6, 0, 6.2832); ctx.fill();
@@ -393,13 +421,71 @@
     if (idx !== railIdx) { railIdx = idx; railLinks.forEach((a, k) => a.classList.toggle('on', k <= idx)); }
   }
 
+  /* page progress, the phone dock and the kinetic bands */
+  const dock = $('.dock'), prog = $('.prog'), startSec = $('#start');
+  const mqs = $$('.mq-track').map(tr => ({ tr, box: tr.parentElement, rev: tr.parentElement.classList.contains('mq-rev'), setW: 0 }));
+  function measureMq() {
+    mqs.forEach(M => { M.setW = (M.tr.scrollWidth + (parseFloat(getComputedStyle(M.tr).columnGap) || 0)) / 3; });
+  }
+  let dockOn = null, progP = -1;
+  function updateChrome() {
+    updateRail();
+    const ih = innerHeight;
+    const pp = clamp(scrollY / Math.max(1, doc.documentElement.scrollHeight - ih), 0, 1);
+    if (Math.abs(pp - progP) > 0.001) { progP = pp; prog.style.setProperty('--pp', pp.toFixed(4)); }
+    const on = below.getBoundingClientRect().top < ih * 0.3 && startSec.getBoundingClientRect().top > ih * 0.8;
+    if (on !== dockOn) { dockOn = on; dock.classList.toggle('on', on); dock.tabIndex = on ? 0 : -1; }
+    if (RM.matches) return;
+    for (const M of mqs) {
+      if (!M.setW) continue;
+      const r = M.box.getBoundingClientRect();
+      if (r.bottom < -60 || r.top > ih + 60) continue;
+      const k = (scrollY * 0.4) % M.setW;
+      M.tr.style.setProperty('--mx', (M.rev ? k - M.setW : -k).toFixed(1) + 'px');
+    }
+  }
+
   let scrollQueued = false;
   function onScroll() {
     if (!staticMode) { target = heroProgress(); kick(); }
-    if (!scrollQueued) { scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; updateRail(); }); }
+    if (!scrollQueued) { scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; updateChrome(); }); }
   }
 
   /* ---------------- entrances and living elements ---------------- */
+  /* section headings arrive word by word from behind a mask; the full sentence stays in place for screen readers */
+  $$('h2').forEach(h => {
+    const text = h.textContent.trim();
+    const sr = doc.createElement('span'); sr.className = 'sr-only'; sr.textContent = text;
+    const vis = doc.createElement('span'); vis.setAttribute('aria-hidden', 'true');
+    text.split(/[ \n\t]+/).forEach((w, i, all) => {
+      const mask = doc.createElement('span'), word = doc.createElement('span');
+      mask.className = 'hw'; word.textContent = w; word.style.setProperty('--w', i);
+      mask.appendChild(word); vis.appendChild(mask);
+      if (i < all.length - 1) vis.appendChild(doc.createTextNode(' '));
+    });
+    h.textContent = '';
+    h.append(sr, vis);
+  });
+
+  /* numbers count up once, the first time they are seen */
+  const fmt = (v, dec) => {
+    const [a, b] = v.toFixed(dec).split('.');
+    return a.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (b ? ',' + b : '');
+  };
+  const counts = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    counts.unobserve(e.target);
+    if (RM.matches) return;
+    const el = e.target, to = +el.dataset.to, from = +(el.dataset.from || 0), dec = +(el.dataset.dec || 0), t0 = performance.now();
+    const step = now => {
+      const u = clamp((now - t0) / 1500, 0, 1);
+      el.textContent = fmt(from + (to - from) * (1 - Math.pow(1 - u, 3)), dec);
+      if (u < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }), { threshold: 0.6 });
+  $$('.count').forEach(el => counts.observe(el));
+
   const reveal = new IntersectionObserver(entries => {
     let n = 0;
     entries.forEach(e => {
@@ -428,18 +514,32 @@
 
   doc.addEventListener('visibilitychange', () => {
     doc.body.classList.toggle('paused', doc.hidden);
-    if (!doc.hidden) kick();
+    if (!doc.hidden) { kick(); kickMinis(); }
   });
 
   /* ---------------- three reps ---------------- */
   const trySec = $('#incearca'), rig = $('.rig'), holdBtn = $('#hold'), holdLbl = $('.hold-label');
   const repN = $('#rep-n'), dayEls = $$('.day'), skipBtn = $('#rep-skip');
-  let hp = 0, hpShown = -1, holding = false, lowering = false, reps = 0, solved = false, hRaf = null, hLast = 0;
+  const rigC = $('#rig-canvas'), rigCtx = rigC && rigC.getContext ? rigC.getContext('2d') : null;
+  let ph = 0, phShown = -1, holding = false, reps = 0, solved = false, hRaf = null, hLast = 0;
+  const depth = () => (1 - Math.cos(Math.PI * 2 * ph)) / 2;     /* 0 standing, 1 at the bottom, 0 standing again */
 
+  function drawRig() {
+    if (!rigCtx || !FIG) return;
+    const w = rigC.clientWidth, h = rigC.clientHeight;
+    if (!w || !h) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (rigC.width !== Math.round(w * dpr) || rigC.height !== Math.round(h * dpr)) { rigC.width = Math.round(w * dpr); rigC.height = Math.round(h * dpr); }
+    rigCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    rigCtx.clearRect(0, 0, w, h);
+    const S = h * 0.86;
+    FIG.drawSide(rigCtx, w * 0.5 - S * 0.03, h * 0.95, S, FIG.squat(depth(), true), FIG.STYLES.dark);
+  }
   function renderHold() {
-    if (hp === hpShown) return;
-    hpShown = hp;
-    rig.style.setProperty('--hp', hp.toFixed(3));
+    if (ph === phShown) return;
+    phShown = ph;
+    rig.style.setProperty('--hp', depth().toFixed(3));
+    drawRig();
   }
   function setLabel() { holdLbl.textContent = solved ? 'Gata. Asta e săptămâna ta.' : reps ? 'Încă una' : 'Ține apăsat'; }
   function finish() {
@@ -460,19 +560,17 @@
     reps = dayEls.length;
     repN.textContent = String(reps);
     dayEls.forEach(d => d.classList.add('on'));
-    lowering = hp > 0;
     finish();
-    if (RM.matches) { hp = 0; lowering = false; renderHold(); } else kickHold();
+    if (RM.matches) { ph = 0; renderHold(); } else kickHold();
   }
   function holdTick(now) {
     hRaf = null;
     const dt = Math.min(64, now - (hLast || now));
     hLast = now;
-    if (lowering) { hp = Math.max(0, hp - dt / 520); if (hp === 0) lowering = false; }       /* the way down after a full rep */
-    else if (holding && !solved) { hp = Math.min(1, hp + dt / 1000); if (hp === 1) { countRep(); lowering = true; } }
-    else hp = Math.max(0, hp - (dt / 800) * (0.4 + hp));                                     /* let go early: it eases back */
+    if (holding && !solved) { ph += dt / 1500; if (ph >= 1) { ph = 0; countRep(); } }        /* one rep: down and back up */
+    else if (ph > 0) { ph = ph < 0.5 ? Math.max(0, ph - dt / 800) : ph + dt / 800; if (ph >= 1) ph = 0; }   /* let go early: stand back up the short way */
     renderHold();
-    if (hp > 0 || (holding && !solved)) hRaf = requestAnimationFrame(holdTick);
+    if (ph > 0 || (holding && !solved)) hRaf = requestAnimationFrame(holdTick);
     else hLast = 0;
   }
   function kickHold() { if (hRaf === null) hRaf = requestAnimationFrame(holdTick); }
@@ -550,19 +648,150 @@
     if (f.getAttribute('aria-invalid') === 'true' && f.value.trim() !== '' && f.checkValidity()) f.setAttribute('aria-invalid', 'false');
   }));
 
+  /* ---------------- small lifters in the product cards ---------------- */
+  const minis = FIG ? $$('canvas.mini').map((c, i) => ({ c, ctx: c.getContext('2d'), kind: c.dataset.fig, on: false, off: i * 0.31 })) : [];
+  let miniRaf = null, miniLast = 0;
+  /* one rep: a breath at the top, down, a beat at the bottom, up */
+  const repCurve = t => (t < 0.12 ? 0 : t < 0.5 ? FIG.ease((t - 0.12) / 0.38) : t < 0.6 ? 1 : 1 - FIG.ease((t - 0.6) / 0.4));
+  function drawMini(m, t) {
+    const w = m.c.clientWidth, h = m.c.clientHeight;
+    if (!w || !h) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (m.c.width !== Math.round(w * dpr) || m.c.height !== Math.round(h * dpr)) { m.c.width = Math.round(w * dpr); m.c.height = Math.round(h * dpr); }
+    m.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    m.ctx.clearRect(0, 0, w, h);
+    const q = repCurve(t), S = h * 0.9;
+    const J = m.kind === 'dl' ? FIG.deadlift(1 - q) : FIG.squat(q, m.kind === 'bar');
+    FIG.drawSide(m.ctx, w * 0.5 - S * 0.02, h * 0.95, S, J, FIG.STYLES.light, { tail: m.kind === 'bw' });
+  }
+  function miniTick(now) {
+    miniRaf = null;
+    if (now - miniLast > 32) { miniLast = now; for (const m of minis) if (m.on) drawMini(m, (now / 2900 + m.off) % 1); }
+    if (!doc.hidden && !RM.matches && minis.some(m => m.on)) miniRaf = requestAnimationFrame(miniTick);
+  }
+  function kickMinis() {
+    if (miniRaf === null && !doc.hidden && !RM.matches && minis.some(m => m.on)) miniRaf = requestAnimationFrame(miniTick);
+  }
+  if (minis.length) {
+    const seenMini = new IntersectionObserver(entries => {
+      entries.forEach(e => { minis.find(m => m.c === e.target).on = e.isIntersecting; });
+      kickMinis();
+    }, { rootMargin: '60px' });
+    minis.forEach(m => { seenMini.observe(m.c); drawMini(m, 0.36); });
+  }
+
+  /* ---------------- direction: one drawn body, two starting points ---------------- */
+  const DIRS = {
+    plin: {
+      lede: 'Scazi puțin caloriile, nu tai mâncarea pe jumătate. Faci trei antrenamente pe săptămână, ca să păstrezi mușchii cât se duce grăsimea.',
+      way: ['energia și somnul', 'hainele', 'oglinda'], rec: 'Start Acasă și Farfuria, la 1.800 kcal', pick: 'Start Acasă'
+    },
+    slab: {
+      lede: 'Mănânci mai mult decât crezi că poți și ridici greu, de trei ori pe săptămână. Umerii, spatele și picioarele răspund primele.',
+      way: ['pofta de mâncare', 'greutățile de pe bară', 'oglinda'], rec: 'Pachetul Start, cu Farfuria la 2.600 kcal', pick: 'Pachetul Start'
+    }
+  };
+  const dirC = $('#dir-canvas'), dirR = $('#dir-range');
+  if (dirC && dirR && FIG && dirC.getContext) {
+    const dctx = dirC.getContext('2d'), chipEls = $$('.chips button'), wayEls = $$('.way li'), dirBtn = $('#dir-btn');
+    /* text that changes with the choice fades through, it never jumps */
+    const lede = $('#dir-lede'), ledeIn = doc.createElement('span');
+    ledeIn.textContent = lede.textContent; lede.textContent = ''; lede.appendChild(ledeIn);
+    const swaps = [ledeIn, $('#dir-rec'), $('#dir-w1'), $('#dir-w2'), $('#dir-w3')];
+    swaps.forEach(el => el.classList.add('swp'));
+    let mTarget = 0, m = 0, tTarget = 0, t = 0, dRaf = null, touched = false, demoed = false, wayOn = -2, swapTimer = 0;
+
+    function drawDir() {
+      const w = dirC.clientWidth, h = dirC.clientHeight;
+      if (!w || !h) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (dirC.width !== Math.round(w * dpr) || dirC.height !== Math.round(h * dpr)) { dirC.width = Math.round(w * dpr); dirC.height = Math.round(h * dpr); }
+      dctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dctx.clearRect(0, 0, w, h);
+      const start = FIG.mixBuild(FIG.BUILDS.plin, FIG.BUILDS.slab, FIG.ease(m));
+      FIG.drawFront(dctx, w / 2, h * 0.975, h * 0.93, FIG.mixBuild(start, FIG.BUILDS.fit, FIG.ease(t)), { arms: 'down' }, FIG.STYLES.dark);
+      const on = t >= 0.88 ? 2 : t >= 0.5 ? 1 : t >= 0.12 ? 0 : -1;
+      if (on !== wayOn) { wayOn = on; wayEls.forEach((li, i) => li.classList.toggle('on', i <= on)); }
+    }
+    function dirTick() {
+      dRaf = null;
+      m += (mTarget - m) * 0.14; t += (tTarget - t) * 0.18;
+      if (Math.abs(mTarget - m) < 0.002) m = mTarget;
+      if (Math.abs(tTarget - t) < 0.002) t = tTarget;
+      drawDir();
+      if (m !== mTarget || t !== tTarget) dRaf = requestAnimationFrame(dirTick);
+    }
+    function settle() {
+      if (RM.matches) { m = mTarget; t = tTarget; drawDir(); }
+      else if (dRaf === null) dRaf = requestAnimationFrame(dirTick);
+    }
+    function setT(v, fromUser) {
+      tTarget = clamp(v, 0, 1);
+      dirR.style.setProperty('--v', (tTarget * 100).toFixed(1) + '%');
+      if (!fromUser) dirR.value = String(Math.round(tTarget * 100));
+      settle();
+    }
+    dirR.addEventListener('input', () => { touched = true; setT(dirR.value / 100, true); });
+
+    function choose(btn, focus) {
+      const key = btn.dataset.from, D = DIRS[key];
+      chipEls.forEach(c => { const on = c === btn; c.setAttribute('aria-checked', String(on)); c.tabIndex = on ? 0 : -1; });
+      if (focus) btn.focus();
+      mTarget = key === 'slab' ? 1 : 0;
+      settle();
+      dirBtn.dataset.pick = D.pick;
+      const texts = [D.lede, D.rec, D.way[0], D.way[1], D.way[2]];
+      clearTimeout(swapTimer);
+      if (RM.matches) { swaps.forEach((el, i) => { el.textContent = texts[i]; }); return; }
+      swaps.forEach(el => el.classList.add('out'));
+      swapTimer = setTimeout(() => swaps.forEach((el, i) => { el.textContent = texts[i]; el.classList.remove('out'); }), 220);
+    }
+    chipEls.forEach((c, i) => {
+      c.tabIndex = c.getAttribute('aria-checked') === 'true' ? 0 : -1;
+      c.addEventListener('click', () => choose(c, false));
+      c.addEventListener('keydown', e => {
+        const dir = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        choose(chipEls[(i + dir + chipEls.length) % chipEls.length], true);
+      });
+    });
+
+    /* the first time it is seen, the body moves on its own once, so nobody has to guess that it can */
+    new IntersectionObserver((entries, io) => entries.forEach(e => {
+      if (!e.isIntersecting || demoed) return;
+      demoed = true; io.disconnect();
+      if (touched) return;
+      if (RM.matches) { setT(1, false); return; }
+      const t0 = performance.now();
+      const step = now => {
+        if (touched) return;
+        const u = clamp((now - t0 - 350) / 2000, 0, 1);
+        setT(0.8 * (1 - Math.pow(1 - u, 3)), false);
+        if (u < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }), { threshold: 0.55 }).observe(dirC);
+    if (window.ResizeObserver) new ResizeObserver(drawDir).observe(dirC);
+    drawDir();
+  }
+
   /* ---------------- boot ---------------- */
   $$('.split').forEach(splitEl);
   buildScene();
+  drawRig();
+  if (rigC && window.ResizeObserver) new ResizeObserver(() => { phShown = -1; renderHold(); }).observe(rigC);
+  measureMq();
   loadStart = performance.now();
   if (staticMode) drawStatic();
   else { target = shown = heroProgress(); if (shown > 0.01) loadK = 1; drawScene(shown, 0); kick(); }
-  updateRail();
+  updateChrome();
 
   addEventListener('scroll', onScroll, { passive: true });
   MQLS.forEach(m => onMQ(m, applyHeroMode));
   onMQ(NARROW, applyHeroMode);
   /* reduced motion switched on mid-visit: finish the reps too, so nothing is left waiting on a hold */
-  onMQ(RM, () => { if (RM.matches && hp > 0 && !solved) { hp = 0; lowering = false; renderHold(); } });
+  onMQ(RM, () => { if (RM.matches && ph > 0) { ph = 0; renderHold(); } kickMinis(); });
 
   let lastW = stage.clientWidth, lastH = stage.clientHeight;
   new ResizeObserver(() => {
@@ -572,11 +801,12 @@
       buildScene();
       if (staticMode) drawStatic(); else { drawScene(shown, performance.now()); kick(); }
     }
-    updateRail();
+    measureMq();
+    updateChrome();
   }).observe(stage);
 
   if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(() => {
-    fontsReady = true; h1Ratio = 0; fitH1();
+    fontsReady = true; h1Ratio = 0; fitH1(); measureMq(); updateChrome();
     if (staticMode) drawStatic(); else { drawScene(shown, performance.now()); kick(); }
   });
   else fontsReady = true;
