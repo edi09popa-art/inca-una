@@ -423,9 +423,13 @@
 
   /* page progress, the phone dock and the kinetic bands */
   const dock = $('.dock'), prog = $('.prog'), startSec = $('#start');
-  const mqs = $$('.mq-track').map(tr => ({ tr, box: tr.parentElement, rev: tr.parentElement.classList.contains('mq-rev'), setW: 0 }));
+  const mqs = $$('.mq-track').map(tr => ({ tr, shift: tr.parentElement, box: tr.closest('.mq'), rev: tr.closest('.mq').classList.contains('mq-rev'), setW: 0 }));
   function measureMq() {
-    mqs.forEach(M => { M.setW = (M.tr.scrollWidth + (parseFloat(getComputedStyle(M.tr).columnGap) || 0)) / 3; });
+    mqs.forEach(M => {
+      M.setW = (M.tr.scrollWidth + (parseFloat(getComputedStyle(M.tr).columnGap) || 0)) / 3;
+      M.tr.style.setProperty('--mq-w', M.setW.toFixed(1) + 'px');
+      M.tr.style.setProperty('--mq-t', (M.setW / (innerWidth < 700 ? 46 : 70)).toFixed(1) + 's');
+    });
   }
   let dockOn = null, progP = -1;
   function updateChrome() {
@@ -440,8 +444,8 @@
       if (!M.setW) continue;
       const r = M.box.getBoundingClientRect();
       if (r.bottom < -60 || r.top > ih + 60) continue;
-      const k = (scrollY * 0.4) % M.setW;
-      M.tr.style.setProperty('--mx', (M.rev ? k - M.setW : -k).toFixed(1) + 'px');
+      const k = (scrollY * 0.3) % M.setW;
+      M.shift.style.setProperty('--mx', (M.rev ? k - M.setW : -k).toFixed(1) + 'px');
     }
   }
 
@@ -505,7 +509,7 @@
   $$('.sec').forEach(s => seen.observe(s));
 
   const live = new IntersectionObserver(entries => entries.forEach(e => e.target.classList.toggle('live', e.isIntersecting)));
-  $$('.sec, .hero').forEach(s => live.observe(s));
+  $$('.sec, .hero, .mq').forEach(s => live.observe(s));
 
   new IntersectionObserver(entries => entries.forEach(e => {
     heroOn = e.isIntersecting;
@@ -567,8 +571,13 @@
     hRaf = null;
     const dt = Math.min(64, now - (hLast || now));
     hLast = now;
-    if (holding && !solved) { ph += dt / 1500; if (ph >= 1) { ph = 0; countRep(); } }        /* one rep: down and back up */
-    else if (ph > 0) { ph = ph < 0.5 ? Math.max(0, ph - dt / 800) : ph + dt / 800; if (ph >= 1) ph = 0; }   /* let go early: stand back up the short way */
+    if (ph >= 0.5 || (holding && !solved)) {
+      /* down while the button is held; once the bottom is reached the rep is done and the way up plays by itself */
+      const before = ph;
+      ph += dt / 1300;
+      if (before < 0.5 && ph >= 0.5 && !solved) countRep();
+      if (ph >= 1) ph = 0;
+    } else if (ph > 0) ph = Math.max(0, ph - dt / 650);                                   /* let go before the bottom: stand back up, nothing counted */
     renderHold();
     if (ph > 0 || (holding && !solved)) hRaf = requestAnimationFrame(holdTick);
     else hLast = 0;
@@ -583,10 +592,9 @@
   holdBtn.addEventListener('pointerdown', e => {
     if (e.button !== 0) return;
     e.preventDefault();
-    try { holdBtn.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
     startHold();
   });
-  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => holdBtn.addEventListener(ev, endHold));
+  ['pointerup', 'pointercancel'].forEach(ev => addEventListener(ev, endHold));
   holdBtn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); startHold(); } });
   holdBtn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); endHold(); } });
   holdBtn.addEventListener('blur', endHold);

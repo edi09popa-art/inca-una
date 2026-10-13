@@ -499,7 +499,12 @@ h1 .w:last-child{margin-left:var(--hgap,0px)}
 
 /* kinetic bands */
 .mq{position:relative;overflow:hidden;padding:clamp(18px,2.6vw,30px) 0 clamp(20px,2.8vw,34px);background:var(--rubber);border-top:1px solid var(--line-d)}
-.mq-track{display:flex;align-items:center;gap:clamp(18px,2.8vw,42px);width:max-content;transform:translate3d(var(--mx,0px),0,0);will-change:transform}
+.mq-shift{width:max-content;transform:translate3d(var(--mx,0px),0,0);will-change:transform}
+.mq-track{display:flex;align-items:center;gap:clamp(18px,2.8vw,42px);width:max-content;will-change:transform;animation:mq var(--mq-t,60s) linear infinite}
+.mq-rev .mq-track{animation-name:mq-rev}
+@keyframes mq{to{transform:translate3d(calc(var(--mq-w,0px)*-1),0,0)}}
+@keyframes mq-rev{from{transform:translate3d(calc(var(--mq-w,0px)*-1),0,0)}to{transform:translate3d(0,0,0)}}
+.js .mq:not(.live) .mq-track{animation-play-state:paused}
 .mq span{font:900 clamp(42px,8vw,108px)/1 var(--f-display);font-stretch:125%;letter-spacing:-.03em;text-transform:uppercase;white-space:nowrap;color:transparent;-webkit-text-stroke:1.5px rgba(236,237,231,.5)}
 .mq span:nth-of-type(4n+1){color:var(--chalk);-webkit-text-stroke:0}
 .mq-rev span:nth-of-type(4n+1){color:transparent;-webkit-text-stroke:1.5px rgba(236,237,231,.5)}
@@ -521,6 +526,7 @@ h1 .w:last-child{margin-left:var(--hgap,0px)}
 
 /* three reps, done by a drawn lifter */
 .rig-canvas{display:block;width:100%;height:auto;aspect-ratio:8/7;margin-bottom:10px}
+.hold>*{pointer-events:none}
 @media (max-width:860px){.rig-canvas{width:min(100%,300px);margin:0 auto 6px}}
 
 .days-k{line-height:1.5}
