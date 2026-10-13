@@ -661,7 +661,7 @@
     m.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     m.ctx.clearRect(0, 0, w, h);
     const q = repCurve(t), S = h * 0.9;
-    const J = m.kind === 'dl' ? FIG.deadlift(1 - q) : FIG.squat(q, m.kind === 'bar');
+    const J = m.kind === 'dl' ? FIG.deadlift(1 - q) : m.kind === 'curl' ? FIG.curl(q) : FIG.squat(q, m.kind === 'bar');
     FIG.drawSide(m.ctx, w * 0.5 - S * 0.02, h * 0.95, S, J, FIG.STYLES.light, { tail: m.kind === 'bw' });
   }
   function miniTick(now) {
@@ -687,7 +687,7 @@
       way: ['energia și somnul', 'hainele', 'oglinda'], rec: 'Start Acasă și Farfuria, la 1.800 kcal', pick: 'Start Acasă'
     },
     slab: {
-      lede: 'Mănânci mai mult decât crezi că poți și ridici greu, de trei ori pe săptămână. Umerii, spatele și picioarele răspund primele.',
+      lede: 'Mănânci mai mult decât crezi că poți și ridici greu, de patru ori pe săptămână. Umerii, spatele și picioarele răspund primele.',
       way: ['pofta de mâncare', 'greutățile de pe bară', 'oglinda'], rec: 'Pachetul Start, cu Farfuria la 2.600 kcal', pick: 'Pachetul Start'
     }
   };

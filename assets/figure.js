@@ -75,11 +75,11 @@ window.IUFig = (() => {
 
   const STYLES = {
     /* chalk figure on rubber */
-    dark: { near: '#E7E9E2', far: '#88919D', hair: '#B9BEC0', shoe: '#F6F6F1', shoeFar: '#9AA1AC', shorts: '#D63A22', shortsFar: '#8E2313', plate: '#3B424D', rim: '#5B6471', steel: '#C9CED4', line: 'rgba(20,23,28,.5)', neck: '#C3C7C6', ground: 'rgba(236,237,231,.18)', shade: 0.2 },
+    dark: { near: '#E7E9E2', far: '#88919D', hair: '#B9BEC0', shoe: '#F6F6F1', shoeFar: '#9AA1AC', shorts: '#D63A22', shortsFar: '#8E2313', band: '#A42A17', plate: '#3B424D', rim: '#5B6471', steel: '#C9CED4', line: 'rgba(20,23,28,.5)', neck: '#C3C7C6', ground: 'rgba(236,237,231,.18)', shade: 0.2 },
     /* ink figure on chalk */
-    light: { near: '#1B1F26', far: '#7C8490', hair: '#3A414C', shoe: '#1B1F26', shoeFar: '#7C8490', shorts: '#D63A22', shortsFar: '#A93320', plate: '#C5C8C2', rim: '#A2A6A1', steel: '#5C6470', line: 'rgba(236,237,231,.55)', neck: '#353B45', ground: 'rgba(21,24,29,.16)', shade: 0 },
+    light: { near: '#1B1F26', far: '#7C8490', hair: '#3A414C', shoe: '#1B1F26', shoeFar: '#7C8490', shorts: '#D63A22', shortsFar: '#A93320', band: '#A42A17', plate: '#C5C8C2', rim: '#A2A6A1', steel: '#5C6470', line: 'rgba(236,237,231,.55)', neck: '#353B45', ground: 'rgba(21,24,29,.16)', shade: 0 },
     /* steel statue behind the headline */
-    statue: { near: '#5D6674', far: '#444C58', hair: '#4B5461', shoe: '#4B5461', shoeFar: '#444C58', shorts: '#272C35', shortsFar: '#1F232A', plate: '#3B424D', rim: '#5B6471', steel: '#C9CED4', line: 'rgba(16,18,23,.5)', neck: '#555E6B', ground: 'rgba(236,237,231,0)', shade: 0.34 }
+    statue: { near: '#5D6674', far: '#444C58', hair: '#4B5461', shoe: '#4B5461', shoeFar: '#444C58', shorts: '#333A46', shortsFar: '#262B34', band: '#4A5361', plate: '#3B424D', rim: '#5B6471', steel: '#C9CED4', line: 'rgba(16,18,23,.5)', neck: '#555E6B', ground: 'rgba(236,237,231,0)', shade: 0.34 }
   };
 
   /* ---------------- side view ---------------- */
@@ -93,14 +93,18 @@ window.IUFig = (() => {
     const knee = [ANK[0] + LEN.shin * Math.sin(a), ANK[1] + LEN.shin * Math.cos(a)];
     const hip = [knee[0] - LEN.thigh * Math.sin(b), knee[1] + LEN.thigh * Math.cos(b)];
     let g = 0.1;
-    for (let i = 0; i < 4; i++) g = Math.asin(clamp(((withBar ? MID + 0.045 * Math.cos(g) : MID + 0.04) - hip[0]) / LEN.torso, -0.95, 0.95));
+    for (let i = 0; i < 4; i++) g = Math.asin(clamp(((withBar ? MID + 0.04 * Math.cos(g) - 0.02 * Math.sin(g) : MID + 0.04) - hip[0]) / LEN.torso, -0.95, 0.95));
     const sh = [hip[0] + LEN.torso * Math.sin(g), hip[1] + LEN.torso * Math.cos(g)];
     const J = { ankle: ANK, knee, hip, sh, lean: g };
     if (withBar) {
-      J.bar = [sh[0] - 0.045 * Math.cos(g) - 0.012 * Math.sin(g), sh[1] + 0.045 * Math.sin(g) - 0.012 * Math.cos(g)];
-      J.hand = [J.bar[0] + 0.012, J.bar[1] - 0.008];
-      const psi = 40 * RAD - g * 0.35;             /* elbows point down and a little back, under the bar */
-      J.elbow = [sh[0] - LEN.upper * Math.sin(psi), sh[1] - 0.012 - LEN.upper * Math.cos(psi)];
+      /* the bar rides on the upper back, a little above and behind the shoulder joint */
+      J.bar = [sh[0] - 0.04 * Math.cos(g) + 0.02 * Math.sin(g), sh[1] + 0.04 * Math.sin(g) + 0.02 * Math.cos(g)];
+      J.hand = [J.bar[0] + 0.006, J.bar[1] - 0.004];
+      /* seen from the side the arm is folded and angled away from us, so both halves look shorter than they are:
+         elbow down and a little back, forearm climbing to the bar */
+      const f = g * 0.6, ex = -0.062, ey = -0.112;
+      J.elbow = [sh[0] + ex * Math.cos(f) + ey * Math.sin(f), sh[1] - 0.012 - ex * Math.sin(f) + ey * Math.cos(f)];
+      J.fold = 'under';
     } else {
       const t = lerp(6, 84, ease(q)) * RAD;
       J.elbow = [sh[0] + LEN.upper * Math.sin(t - 0.1), sh[1] - 0.012 - LEN.upper * Math.cos(t - 0.1)];
@@ -120,6 +124,17 @@ window.IUFig = (() => {
     J.knee = ik(hip[0], hip[1], ANK[0], ANK[1], LEN.thigh, LEN.shin, 1);
     J.elbow = [lerp(sh[0], J.hand[0], 0.52) - 0.004, lerp(sh[1] - 0.012, J.hand[1], 0.52)];
     J.head = [sh[0] + LEN.neck * Math.sin(g * 0.6) + 0.012, sh[1] + LEN.neck * Math.cos(g * 0.6)];
+    return J;
+  }
+
+  /* standing curl, q = 0 arms long, 1 bar at the shoulders. The elbow stays pinned to the side. */
+  function curl(q) {
+    const J = squat(0.03, false), t = lerp(9, 140, ease(q)) * RAD;
+    J.elbow = [J.sh[0] - 0.004, J.sh[1] - 0.012 - LEN.upper];
+    J.hand = [J.elbow[0] + LEN.fore * Math.sin(t), J.elbow[1] - LEN.fore * Math.cos(t)];
+    J.bar = [J.hand[0] + 0.004 * Math.sin(t), J.hand[1] - 0.004 * Math.cos(t)];
+    J.plateScale = 0.6;
+    J.fold = q > 0.7;
     return J;
   }
 
@@ -144,29 +159,59 @@ window.IUFig = (() => {
     const u = [Math.sin(J.lean), Math.cos(J.lean)], n = [-u[1], u[0]];
     const along = (t, back, r) => [X(J.hip[0] + u[0] * LEN.torso * t + n[0] * back), Y(J.hip[1] + u[1] * LEN.torso * t + n[1] * back), r * S];
 
-    if (J.bar) drawPlate(ctx, X(J.bar[0]), Y(J.bar[1]), S, st);
+    if (J.bar) drawPlate(ctx, X(J.bar[0]), Y(J.bar[1]), S * (J.plateScale || 1), st);
 
-    const leg = (dx, tone, shoe, shorts, g) => {
+    const leg = (dx, tone, shoe, g) => {
       const hip = [J.hip[0] + dx, J.hip[1]], knee = [J.knee[0] + dx, J.knee[1]], ank = [J.ankle[0] + dx, J.ankle[1]];
       chain(ctx, [P(hip, B.thigh), mix(hip, knee, 0.4, B.thigh * 0.95), P(knee, B.knee), mix(knee, ank, 0.3, B.calf, -0.012), P(ank, B.ankle)], tone, g);
       chain(ctx, [[X(ank[0] - 0.03), Y(0.022), B.foot * S], [X(ank[0] + 0.105), Y(0.019), B.foot * 0.85 * S]], shoe, g);
-      /* shorts: the top of the thigh in another colour, cut straight across at the hem */
-      const tl = Math.hypot(knee[0] - hip[0], knee[1] - hip[1]) || 1, vx = (knee[0] - hip[0]) / tl, vy = (knee[1] - hip[1]) / tl;
-      const corner = (al, side) => [X(hip[0] + vx * al - vy * side), Y(hip[1] + vy * al + vx * side)];
-      const c1 = corner(-0.2, -0.2), c2 = corner(-0.2, 0.2), c3 = corner(tl * 0.42, 0.2), c4 = corner(tl * 0.42, -0.2);
+    };
+    /* everything inside a strip that runs from (hip + axis * a0) to (hip + axis * a1): how a hem or a waistband gets its straight edge */
+    const strip = (cx, cy, ax, ay, a0, a1, draw) => {
+      const c = (al, side) => [X(cx + ax * al - ay * side), Y(cy + ay * al + ax * side)];
+      const q1 = c(a0, -0.3), q2 = c(a0, 0.3), q3 = c(a1, 0.3), q4 = c(a1, -0.3);
       ctx.save();
-      ctx.beginPath(); ctx.moveTo(c1[0], c1[1]); ctx.lineTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]); ctx.lineTo(c4[0], c4[1]); ctx.closePath(); ctx.clip();
-      chain(ctx, [[X(hip[0] + u[0] * 0.045), Y(hip[1] + u[1] * 0.045), (B.pelvis - 0.003) * S], P(hip, B.thigh + 0.003), mix(hip, knee, 0.6, B.thigh * 0.93 + 0.003)], shorts, 0);
+      ctx.beginPath(); ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]); ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]); ctx.closePath(); ctx.clip();
+      draw();
       ctx.restore();
+    };
+    /* shorts are one garment: a leg down each thigh to a straight hem, and a seat up to a straight waistband */
+    const shortsLeg = (dx, tone) => {
+      const hip = [J.hip[0] + dx, J.hip[1]], knee = [J.knee[0] + dx, J.knee[1]];
+      const tl = Math.hypot(knee[0] - hip[0], knee[1] - hip[1]) || 1;
+      strip(hip[0], hip[1], (knee[0] - hip[0]) / tl, (knee[1] - hip[1]) / tl, -0.2, tl * 0.46, () =>
+        chain(ctx, [P(hip, B.thigh + 0.005), mix(hip, knee, 0.4, B.thigh * 0.95 + 0.005), P(knee, B.knee + 0.005)], tone, 0));
+    };
+    const shortsSeat = tone => {
+      const top = LEN.torso * 0.21;
+      strip(J.hip[0], J.hip[1], u[0], u[1], -0.3, top, () => {
+        chain(ctx, [along(-0.02, 0.022, B.glute + 0.004)], tone, 0);
+        chain(ctx, [along(0, 0.004, B.pelvis + 0.004), along(0.36, -0.004, B.waist + 0.004)], tone, 0);
+      });
+      strip(J.hip[0], J.hip[1], u[0], u[1], top - 0.016, top, () => {
+        chain(ctx, [along(0, 0.004, B.pelvis + 0.004), along(0.36, -0.004, B.waist + 0.004)], st.band, 0);
+      });
     };
     const arm = (dx, tone, g) => {
       const sh = [J.sh[0] + dx, J.sh[1] - 0.012], el = [J.elbow[0] + dx, J.elbow[1]], ha = [J.hand[0] + dx, J.hand[1]];
-      chain(ctx, [P(sh, B.delt), mix(sh, el, 0.42, B.bi), P(el, B.elbow), mix(el, ha, 0.28, B.fore), mix(el, ha, 0.92, B.wrist)], tone, g);
-      chain(ctx, [P(ha, B.hand)], tone, 0);
+      if (J.fold === 'under') {
+        /* under a bar the forearm sits behind the upper arm: it merges into the body, and the fist shows on the bar */
+        chain(ctx, [P(el, B.elbow * 0.94), mix(el, ha, 0.28, B.fore), mix(el, ha, 0.92, B.wrist)], tone, 0);
+        chain(ctx, [P(sh, B.delt), mix(sh, el, 0.42, B.bi), P(el, B.elbow)], tone, g);
+        chain(ctx, [P(ha, B.hand)], tone, g);
+      } else if (J.fold) {
+        /* a folded arm is two shapes, the forearm lying over the upper arm */
+        chain(ctx, [P(sh, B.delt), mix(sh, el, 0.42, B.bi), P(el, B.elbow)], tone, g);
+        chain(ctx, [P(el, B.elbow * 0.94), mix(el, ha, 0.28, B.fore), mix(el, ha, 0.92, B.wrist), P(ha, B.hand)], tone, g);
+      } else {
+        chain(ctx, [P(sh, B.delt), mix(sh, el, 0.42, B.bi), P(el, B.elbow), mix(el, ha, 0.28, B.fore), mix(el, ha, 0.92, B.wrist)], tone, g);
+        chain(ctx, [P(ha, B.hand)], tone, 0);
+      }
     };
 
     arm(0.022, st.far, 0);
-    leg(0.036, st.far, st.shoeFar, st.shortsFar, 0);
+    leg(0.036, st.far, st.shoeFar, 0);
+    shortsLeg(0.036, st.shortsFar);
 
     chain(ctx, [along(-0.02, 0.022, B.glute)], st.near, gap);
     chain(ctx, [along(0, 0.004, B.pelvis), along(0.36, -0.004, B.waist), along(0.74, -0.016, B.chest), along(1, 0, B.delt * 1.04)], st.near, gap);
@@ -183,7 +228,9 @@ window.IUFig = (() => {
     ctx.beginPath(); ctx.ellipse(hx - 0.02 * S, hy - 0.03 * S, 0.06 * S, 0.052 * S, rot - 0.35, 0, TAU); ctx.fill();
     ctx.restore();
 
-    leg(0, st.near, st.shoe, st.shorts, gap);
+    leg(0, st.near, st.shoe, gap);
+    shortsSeat(st.shorts);
+    shortsLeg(0, st.shorts);
     arm(0, st.near, gap);
 
     if (st.shade) shade(ctx, X(-0.3), Y(1.05), X(0.35), Y(0), st.shade);
@@ -223,9 +270,11 @@ window.IUFig = (() => {
     const fill = st.near;
 
     /* legs: feet stay put, knees open as the hips come down */
+    const legs = [];
     for (const sg of [-1, 1]) {
       const hip = [sg * B.hip * 0.56, 0.5 - d], ank = [sg * 0.07, 0.045];
       const knee = ik(hip[0], hip[1], ank[0], ank[1], 0.2285, 0.2285, sg);
+      legs.push({ hip, knee, sg });
       const pt = (p, r) => [X(p[0]), YG(p[1]), r * S];
       const mid = (a, b, t, r, dx) => [X(lerp(a[0], b[0], t) + (dx || 0)), YG(lerp(a[1], b[1], t)), r * S];
       chain(ctx, [pt(hip, B.thigh), mid(hip, knee, 0.42, B.thigh * 0.94, sg * 0.004), pt(knee, B.knee), mid(knee, ank, 0.3, B.calf, sg * 0.005), pt(ank, B.ankle)], fill, 0);
@@ -240,13 +289,24 @@ window.IUFig = (() => {
     for (let i = half.length - 1; i >= 0; i--) pts.push([X(-half[i][0]), Y(half[i][1])]);
     ctx.fillStyle = fill; blob(ctx, pts); ctx.fill();
 
-    /* shorts */
-    const wb = lerp(B.waist, B.hip, 0.62) + 0.003, to = B.hip * 0.56 + B.thigh + 0.008;
-    ctx.fillStyle = st.shorts; ctx.strokeStyle = st.shorts; ctx.lineJoin = 'round'; ctx.lineWidth = S * 0.014;
+    /* shorts: one garment that follows the hips and runs down each thigh to a straight hem, wherever the thigh points */
+    const wy = 0.582, ww = lerp(B.hip, B.waist, clamp((wy - 0.55) / 0.078, 0, 1)) + 0.003, hj = B.hip * 0.56, tr = B.thigh + 0.006;
+    for (const L of legs) {
+      const tl = Math.hypot(L.knee[0] - L.hip[0], L.knee[1] - L.hip[1]) || 1, vx = (L.knee[0] - L.hip[0]) / tl, vy = (L.knee[1] - L.hip[1]) / tl;
+      const c = (al, side) => [X(L.hip[0] + vx * al - vy * side), YG(L.hip[1] + vy * al + vx * side)];
+      const q1 = c(-0.14, -0.3), q2 = c(-0.14, 0.3), q3 = c(tl * 0.5, 0.3), q4 = c(tl * 0.5, -0.3);
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]); ctx.lineTo(q3[0], q3[1]); ctx.lineTo(q4[0], q4[1]); ctx.closePath(); ctx.clip();
+      chain(ctx, [[X(L.hip[0]), YG(L.hip[1]), tr * S], [X(lerp(L.hip[0], L.knee[0], 0.42) + L.sg * 0.004), YG(lerp(L.hip[1], L.knee[1], 0.42)), (B.thigh * 0.94 + 0.006) * S], [X(L.knee[0]), YG(L.knee[1]), (B.knee + 0.006) * S]], st.shorts, 0);
+      ctx.restore();
+    }
+    ctx.fillStyle = st.shorts;
     ctx.beginPath();
-    ctx.moveTo(X(-wb), Y(0.572)); ctx.lineTo(X(wb), Y(0.572)); ctx.lineTo(X(B.hip + 0.006), Y(0.51)); ctx.lineTo(X(to), Y(0.392));
-    ctx.lineTo(X(0.016), Y(0.392)); ctx.lineTo(X(0), Y(0.44)); ctx.lineTo(X(-0.016), Y(0.392)); ctx.lineTo(X(-to), Y(0.392)); ctx.lineTo(X(-B.hip - 0.006), Y(0.51));
-    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.moveTo(X(-ww), Y(wy)); ctx.lineTo(X(ww), Y(wy)); ctx.lineTo(X(B.hip + 0.004), Y(0.545)); ctx.lineTo(X(hj + tr), Y(0.5));
+    ctx.lineTo(X(0), Y(0.455)); ctx.lineTo(X(-hj - tr), Y(0.5)); ctx.lineTo(X(-B.hip - 0.004), Y(0.545));
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = st.band;
+    ctx.fillRect(X(-ww), Y(wy), X(ww) - X(-ww), S * 0.013);
 
     /* definition: only shows as the build gets lean */
     ctx.strokeStyle = st.line; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, S * 0.0055);
@@ -307,5 +367,5 @@ window.IUFig = (() => {
     return { x: hx, y: hy, rx: hrx, ry: hry };
   }
 
-  return { STYLES, BUILDS, PLATE_R, squat, deadlift, drawSide, drawFront, drawPlate, mixBuild, lerp, clamp, ease };
+  return { STYLES, BUILDS, PLATE_R, squat, deadlift, curl, drawSide, drawFront, drawPlate, mixBuild, lerp, clamp, ease };
 })();

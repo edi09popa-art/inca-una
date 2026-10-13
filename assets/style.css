@@ -523,6 +523,9 @@ h1 .w:last-child{margin-left:var(--hgap,0px)}
 .rig-canvas{display:block;width:100%;height:auto;aspect-ratio:8/7;margin-bottom:10px}
 @media (max-width:860px){.rig-canvas{width:min(100%,300px);margin:0 auto 6px}}
 
+.days-k{line-height:1.5}
+.split-why{max-width:56ch;margin:-6px 0 20px;font-size:16.5px;line-height:1.55;color:var(--ink-2)}
+
 /* direction: one body, two starting points */
 .dir{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);gap:clamp(32px,6vw,96px);align-items:center}
 .dir-stage{padding:16px 18px 16px;border:6px solid rgba(236,237,231,.05);border-radius:32px;background:radial-gradient(ellipse 70% 56% at 50% 40%,#2A2F39,#1B1F26 72%);background-clip:padding-box;box-shadow:0 0 0 1px rgba(236,237,231,.08),inset 0 1px 0 rgba(255,255,255,.07)}
