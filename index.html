@@ -46,6 +46,7 @@
   <a href="#ideea"><span>Ideea</span></a>
   <a href="#incearca"><span>Încearcă</span></a>
   <a href="#directie"><span>Direcția</span></a>
+  <a href="#progres"><span>Jurnalul</span></a>
   <a href="#programe"><span>Ce poți lua</span></a>
   <a href="#mancare"><span>Mâncare</span></a>
   <a href="#cum"><span>Cum merge</span></a>
@@ -264,6 +265,42 @@
   </div>
 </section>
 
+<section class="sec s-log" id="progres" aria-labelledby="h-log">
+  <div class="wrap log">
+    <div class="log-text">
+      <p class="kicker rv">Jurnalul de progres</p>
+      <h2 id="h-log" class="rv">Vezi fiecare disc pe care l-ai pus.</h2>
+      <p class="lede rv">Notezi ce ai ridicat, iar jurnalul îți spune ce încerci data viitoare: încă 2,5&nbsp;kg sau încă o repetare. Și îți arată pe grafic cât ai urcat de la prima săptămână.</p>
+      <ul class="log-feats">
+        <li class="rv"><h3>Data trecută, mereu la vedere.</h3><p>La fiecare exercițiu vezi ce ai făcut ultima oară și ce ai de bătut azi.</p></li>
+        <li class="rv"><h3>Graficul tău, nu al altcuiva.</h3><p>Greutățile de pe bară, kilogramele de pe cântar și talia, săptămână de săptămână.</p></li>
+        <li class="rv"><h3>Pe telefon, fără cont.</h3><p>Merge din browser. Datele stau pe telefonul tău, iar copia de rezervă o faci dintr-un buton.</p></li>
+      </ul>
+      <div class="log-cta rv">
+        <a class="btn ink" href="jurnal.html">Deschide jurnalul<i class="arr" aria-hidden="true"></i></a>
+        <p class="log-free">Vine cu fiecare program. Îl poți încerca de pe acum, gratuit.</p>
+      </div>
+    </div>
+    <div class="phone rv">
+      <div class="phone-in">
+        <div class="ph-top"><span class="ph-brand">Încă Una · Jurnal</span><span class="ph-tag">Exemplu</span></div>
+        <div class="ph-tabs" role="tablist" aria-label="Exercițiu din exemplu">
+          <button type="button" role="tab" aria-selected="true" data-ex="0">Împins</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1" data-ex="1">Genuflexiuni</button>
+          <button type="button" role="tab" aria-selected="false" tabindex="-1" data-ex="2">Flexii</button>
+        </div>
+        <p class="ph-ex" id="ph-ex">Împins la piept cu bara</p>
+        <svg class="chart" id="ph-chart" viewBox="0 0 320 180" role="img" aria-label="Exemplu: împins la piept, de la 40 la 57,5 kg în 12 săptămâni"></svg>
+        <div class="ph-stats">
+          <div><b id="ph-s1">+17,5 kg</b><span>față de prima săptămână</span></div>
+          <div><b id="ph-s2">7</b><span>pași de câte 2,5 kg</span></div>
+        </div>
+        <div class="ph-next"><span>Data viitoare</span><b id="ph-next">60 kg × 8</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sec s-shop" id="programe" aria-labelledby="h-shop">
   <div class="wrap">
     <header class="shop-head">
@@ -280,12 +317,13 @@
           <li><b>Split Antagonist 4×</b> program de 12 săptămâni</li>
           <li><b>Farfuria</b> ghid de mâncare și 60 de rețete</li>
           <li><b>Bazele</b> curs video, 38 de lecții</li>
+          <li><b>Jurnalul de progres</b> cu splitul deja încărcat</li>
         </ul>
       </div>
       <div class="bundle-buy">
         <svg class="bundle-disc" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="bd-a"/><circle cx="60" cy="60" r="36" class="bd-b"/><circle cx="60" cy="60" r="11" class="bd-c"/><path d="M60 12v10M60 98v10M12 60h10M98 60h10" class="bd-d"/></svg>
-        <p class="price big-price"><b>279</b> lei</p>
-        <p class="price-note">397 lei dacă le iei separat</p>
+        <p class="price big-price"><b>299</b> lei</p>
+        <p class="price-note">427 lei dacă le iei separat</p>
         <a class="btn pick" href="#start" data-pick="Pachetul Start">Vreau pachetul<i class="arr" aria-hidden="true"></i></a>
       </div>
     </article>
@@ -300,9 +338,9 @@
         <ul class="ticks">
           <li>Pornește de la zero</li>
           <li>Video scurt la fiecare exercițiu</li>
-          <li>Jurnal de bifat, pe telefon sau printat</li>
+          <li>Jurnal de progres, pe telefon</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>99</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Start Acasă">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>109</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Start Acasă">Vreau asta</a></div>
       </article>
       <article class="card rv">
         <canvas class="mini" data-fig="bar" width="216" height="216" aria-hidden="true"></canvas>
@@ -310,11 +348,11 @@
         <h4>Sală 3×</h4>
         <p class="card-d">Tot corpul, de trei ori pe săptămână. Știi ce ai de făcut din clipa în care intri pe ușă.</p>
         <ul class="ticks">
-          <li>Greutăți scrise săptămână cu săptămână</li>
+          <li>Jurnal de progres care îți spune ce urmează</li>
           <li>Variante când aparatul e ocupat</li>
           <li>Video la fiecare mișcare</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>129</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Sală 3×">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>139</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Sală 3×">Vreau asta</a></div>
       </article>
       <article class="card rv">
         <canvas class="mini" data-fig="curl" width="216" height="216" aria-hidden="true"></canvas>
@@ -324,9 +362,9 @@
         <ul class="ticks">
           <li>Serii alternate, deci pauze mai scurte</li>
           <li>Brațe lucrate de două ori pe săptămână</li>
-          <li>Greutăți scrise săptămână cu săptămână</li>
+          <li>Jurnal de progres cu splitul deja încărcat</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>149</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Split Antagonist 4×">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>159</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Split Antagonist 4×">Vreau asta</a></div>
       </article>
     </div>
 
@@ -342,7 +380,7 @@
           <li>60 de rețete gata în 20&nbsp;de minute</li>
           <li>Liste de cumpărături pe săptămână</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>79</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Farfuria">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>89</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Farfuria">Vreau asta</a></div>
       </article>
       <article class="card rv">
         <svg class="mini glyph g-plan" viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="12" width="56" height="76" rx="9" class="gl-o"/><rect x="32" y="28" width="36" height="5" rx="2.5" class="gl-l l1"/><rect x="32" y="41" width="28" height="5" rx="2.5" class="gl-l l2"/><rect x="32" y="54" width="36" height="5" rx="2.5" class="gl-l l3"/><rect x="32" y="67" width="20" height="5" rx="2.5" class="gl-l l4"/><circle cx="72" cy="76" r="11" class="gl-dot"/><circle cx="72" cy="76" r="3.6" class="gl-hole"/></svg>
@@ -354,7 +392,7 @@
           <li>Meniu pe 4 săptămâni</li>
           <li>O ajustare inclusă după prima lună</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>249</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Plan alimentar făcut pentru mine">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>259</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Plan alimentar făcut pentru mine">Vreau asta</a></div>
       </article>
       <article class="card rv">
         <svg class="mini glyph g-play" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="38" class="gl-o"/><circle cx="50" cy="50" r="38" class="gl-prog" pathLength="100" stroke-dasharray="30 70"/><path d="M43 35l22 15-22 15z" class="gl-tri"/></svg>
@@ -366,7 +404,7 @@
           <li>Cum citești o etichetă și cum îți socotești porțiile</li>
           <li>Cum îți faci singur un program</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>169</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Cursul Bazele">Vreau asta</a></div>
+        <div class="card-foot"><p class="price"><b>179</b> lei</p><a class="btn sm ink pick" href="#start" data-pick="Cursul Bazele">Vreau asta</a></div>
       </article>
     </div>
 
@@ -377,12 +415,12 @@
         <h4>Clubul Încă Una</h4>
         <p class="card-d">Toate programele și rețetele, plus ceva nou în fiecare lună. Pentru când vrei să nu fii singur în asta.</p>
         <ul class="ticks">
-          <li>Cele trei programe și Farfuria, incluse</li>
+          <li>Toate programele, Farfuria și jurnalul</li>
           <li>O provocare nouă pe lună</li>
           <li>Întrebări și răspunsuri live, o dată pe lună</li>
           <li>Renunți când vrei</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>49</b> lei pe lună</p><a class="btn sm pick" href="#start" data-pick="Clubul Încă Una">Intru în club</a></div>
+        <div class="card-foot"><p class="price"><b>55</b> lei pe lună</p><a class="btn sm pick" href="#start" data-pick="Clubul Încă Una">Intru în club</a></div>
       </article>
       <article class="panel rv">
         <p class="card-k">Online · locuri puține</p>
@@ -390,11 +428,11 @@
         <p class="card-d">Un antrenor care îți face programul, îți corectează tehnica și te întreabă vineri cum a mers.</p>
         <ul class="ticks">
           <li>Program și plan de mâncare făcute pentru tine</li>
-          <li>Verificare în fiecare săptămână, cu ajustări</li>
+          <li>Verificare în fiecare săptămână, pe jurnalul tău</li>
           <li>Tehnica, corectată pe filmările tale</li>
           <li>Răspuns la mesaje în 24&nbsp;de ore, de luni până vineri</li>
         </ul>
-        <div class="card-foot"><p class="price"><b>329</b> lei pe lună</p><a class="btn sm pick" href="#start" data-pick="Coaching 1 la 1">Vreau coaching</a></div>
+        <div class="card-foot"><p class="price"><b>349</b> lei pe lună</p><a class="btn sm pick" href="#start" data-pick="Coaching 1 la 1">Vreau coaching</a></div>
         <p class="panel-note">Minimum 3 luni. Locurile sunt puține, ca să fie timp pentru fiecare.</p>
       </article>
     </div>
@@ -470,7 +508,7 @@
       <li class="step rv">
         <p class="step-n">02</p>
         <h3>Primești tot pe&nbsp;email.</h3>
-        <p>PDF-uri, video și jurnalul de antrenament. Le deschizi de pe telefon.</p>
+        <p>PDF-uri, video și jurnalul de progres. Le deschizi de pe telefon.</p>
       </li>
       <li class="step rv">
         <p class="step-n">03</p>
@@ -506,6 +544,10 @@
       <div class="qa rv">
         <h3><button class="q" type="button" aria-expanded="false" aria-controls="a9"><span>Ce e un split antagonist?</span><i aria-hidden="true"></i></button></h3>
         <div class="a" id="a9"><div><p>Într-o zi lucrezi doi mușchi care nu se ajută unul pe altul: biceps cu piept, triceps cu spate. Cât se odihnește unul, lucrează celălalt, deci pauzele sunt mai scurte și antrenamentul iese mai repede. Și fiecare braț ajunge odihnit la rândul lui, nu obosit de exercițiile dinainte.</p></div></div>
+      </div>
+      <div class="qa rv">
+        <h3><button class="q" type="button" aria-expanded="false" aria-controls="a10"><span>Cum îmi urmăresc progresul?</span><i aria-hidden="true"></i></button></h3>
+        <div class="a" id="a10"><div><p>Cu jurnalul de progres, din browser, pe telefon. Notezi greutățile și repetările, iar el îți arată ce ai făcut data trecută și ce încerci azi. Mai notezi, dacă vrei, greutatea și talia. Datele stau pe telefonul tău, fără cont, iar copia de rezervă o faci dintr-un buton.</p></div></div>
       </div>
       <div class="qa rv">
         <h3><button class="q" type="button" aria-expanded="false" aria-controls="a3"><span>Trebuie să renunț la pâine și la dulciuri?</span><i aria-hidden="true"></i></button></h3>
@@ -624,6 +666,7 @@
 <a class="dock" href="#start"><span>Vreau să încep</span><i class="arr" aria-hidden="true"></i></a>
 
 <script src="assets/figure.js" defer></script>
+<script src="assets/chart.js" defer></script>
 <script src="assets/app.js" defer></script>
 </body>
 </html>

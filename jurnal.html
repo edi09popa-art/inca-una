@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jurnalul de progres · Încă Una</title>
+<meta name="description" content="Jurnal de antrenament pe telefon, pentru splitul antagonist: notezi greutățile, vezi ce ai făcut data trecută și cât ai urcat.">
+<meta name="theme-color" content="#14171C">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314171C'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='%23D63A22' stroke-width='6.5'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/jurnal.css">
+<script>document.documentElement.className = 'js';</script>
+</head>
+<body class="j">
+<a class="skip" href="#main">Sari la conținut</a>
+<div class="env" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Principal">
+  <a class="brand" href="./" aria-label="Încă Una, pagina principală">
+    <svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="5.6"/></svg>
+    <span>Încă Una</span>
+  </a>
+  <span class="j-name">Jurnal</span>
+  <a class="btn sm ghost j-back" href="./#programe">Programele</a>
+</nav>
+
+<main id="main" class="j-main" tabindex="-1">
+  <p class="j-warn" id="j-warn" hidden>Browserul ăsta nu ne lasă să salvăm. Poți nota, dar datele se pierd când închizi pagina. Încearcă fără modul privat.</p>
+  <div class="j-demo" id="j-demo" hidden>
+    <span>Date de exemplu. Nimic din ce faci aici nu se salvează.</span>
+    <button type="button" id="j-demo-exit">Ieși din exemplu</button>
+  </div>
+
+  <div class="j-tabs" role="tablist" aria-label="Jurnal">
+    <button type="button" role="tab" id="tb-azi" aria-controls="t-azi" aria-selected="true">Azi</button>
+    <button type="button" role="tab" id="tb-progres" aria-controls="t-progres" aria-selected="false" tabindex="-1">Progres</button>
+    <button type="button" role="tab" id="tb-corp" aria-controls="t-corp" aria-selected="false" tabindex="-1">Corp</button>
+    <button type="button" role="tab" id="tb-copie" aria-controls="t-copie" aria-selected="false" tabindex="-1">Copie</button>
+  </div>
+
+  <section class="j-panel" id="t-azi" role="tabpanel" aria-labelledby="tb-azi">
+    <h1 class="j-h">Antrenamentul de azi</h1>
+    <p class="j-lead" id="j-next">Alege ziua din split, notează seriile și bifează-le pe cele făcute.</p>
+    <div class="chips j-days" id="j-days" role="radiogroup" aria-label="Ziua din split"></div>
+    <label class="j-field j-date">Data<input type="date" id="j-date"></label>
+    <div class="j-exs" id="j-ex"></div>
+    <button class="btn wide" id="j-save" type="button"><span>Salvează antrenamentul</span><i class="arr" aria-hidden="true"></i></button>
+    <p class="j-msg" id="j-msg" role="status" hidden></p>
+  </section>
+
+  <section class="j-panel" id="t-progres" role="tabpanel" aria-labelledby="tb-progres" hidden>
+    <h2 class="j-h">Cum ai urcat</h2>
+    <label class="j-field">Exercițiul<select id="j-pick"></select></label>
+    <div class="j-card">
+      <svg class="chart" id="j-chart" role="img" aria-label="Grafic"></svg>
+      <div class="j-stats" id="j-stats"></div>
+    </div>
+    <h3 class="j-sub">Săptămânile tale</h3>
+    <div class="j-card">
+      <div class="j-weeks" id="j-weeks" role="img" aria-label="Antrenamente pe săptămână"></div>
+      <p class="j-note" id="j-weeks-note"></p>
+    </div>
+    <h3 class="j-sub">Istoric</h3>
+    <ol class="j-hist" id="j-hist"></ol>
+  </section>
+
+  <section class="j-panel" id="t-corp" role="tabpanel" aria-labelledby="tb-corp" hidden>
+    <h2 class="j-h">Cântar și centimetru</h2>
+    <p class="j-lead">O dată pe săptămână e destul, dimineața, înainte de micul dejun.</p>
+    <form class="j-card j-body" id="j-body-form" novalidate>
+      <label class="j-field">Data<input type="date" name="date"></label>
+      <label class="j-field">Greutate (kg)<input type="text" name="kg" inputmode="decimal" autocomplete="off" placeholder="de ex. 82,4"></label>
+      <label class="j-field">Talie (cm, opțional)<input type="text" name="talie" inputmode="decimal" autocomplete="off" placeholder="de ex. 88"></label>
+      <button class="btn wide" type="submit">Adaugă</button>
+      <p class="j-msg" id="j-body-msg" role="status" hidden></p>
+    </form>
+    <div class="j-card"><p class="j-cap">Greutate</p><svg class="chart" id="j-wchart" role="img" aria-label="Grafic greutate"></svg></div>
+    <div class="j-card"><p class="j-cap">Talie</p><svg class="chart" id="j-tchart" role="img" aria-label="Grafic talie"></svg></div>
+    <ol class="j-hist" id="j-body-hist"></ol>
+  </section>
+
+  <section class="j-panel" id="t-copie" role="tabpanel" aria-labelledby="tb-copie" hidden>
+    <h2 class="j-h">Datele tale</h2>
+    <p class="j-lead">Jurnalul ține totul pe telefonul ăsta, în browser. Nu ai cont și nu trimitem nimic nicăieri. Dacă ștergi datele browserului sau schimbi telefonul, ai nevoie de o copie.</p>
+    <div class="j-actions">
+      <button class="btn wide" id="j-export" type="button">Descarcă o copie</button>
+      <button class="btn wide ghost" id="j-import-btn" type="button">Încarcă o copie</button>
+      <input type="file" id="j-import" accept="application/json,.json" hidden>
+      <button class="btn wide ghost" id="j-demo-on" type="button">Vezi cu date de exemplu</button>
+      <button class="textlink" id="j-wipe" type="button">Șterge tot din jurnal</button>
+    </div>
+    <p class="j-msg" id="j-copy-msg" role="status" hidden></p>
+    <p class="j-fine">Planul din jurnal e splitul antagonist: biceps și piept, triceps și spate, umeri și abdomen, picioare. Exercițiile sunt un exemplu; cu programul primești varianta ta.</p>
+  </section>
+</main>
+
+<script src="assets/chart.js" defer></script>
+<script src="assets/jurnal.js" defer></script>
+</body>
+</html>

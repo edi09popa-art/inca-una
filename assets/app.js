@@ -784,6 +784,45 @@
     drawDir();
   }
 
+  /* ---------------- the jurnal, shown on a phone with example numbers ---------------- */
+  const PH = [
+    { name: 'Împins la piept cu bara', v: [40, 42.5, 45, 45, 47.5, 50, 50, 52.5, 52.5, 55, 55, 57.5], next: '60 kg × 8' },
+    { name: 'Genuflexiuni cu bara', v: [50, 55, 57.5, 60, 62.5, 65, 65, 67.5, 70, 72.5, 75, 77.5], next: '80 kg × 6' },
+    { name: 'Flexii cu bara', v: [20, 20, 22.5, 22.5, 25, 25, 25, 27.5, 27.5, 27.5, 30, 30], next: '30 kg × 11, încă o repetare' }
+  ];
+  const phChart = $('#ph-chart');
+  if (phChart && window.IUChart) {
+    const phTabs = $$('.ph-tabs [role="tab"]');
+    let phOn = 0, phSeen = false;
+    const showPh = (i, draw) => {
+      phOn = i;
+      const D = PH[i], diff = D.v[D.v.length - 1] - D.v[0];
+      phTabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; });
+      $('#ph-ex').textContent = D.name;
+      $('#ph-s1').textContent = '+' + IUChart.fmt(diff) + ' kg';
+      $('#ph-s2').textContent = String(Math.round(diff / 2.5));
+      $('#ph-next').textContent = D.next;
+      phChart.setAttribute('aria-label', 'Exemplu: ' + D.name.toLowerCase() + ', de la ' + IUChart.fmt(D.v[0]) + ' la ' + IUChart.fmt(D.v[D.v.length - 1]) + ' kg în 12 săptămâni');
+      if (draw) IUChart.line(phChart, D.v, { unit: 'kg', from: 'săpt. 1', to: 'săpt. 12' });
+    };
+    phTabs.forEach((t, i) => {
+      t.addEventListener('click', () => showPh(i, phSeen));
+      t.addEventListener('keydown', e => {
+        const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        const j = (i + dir + phTabs.length) % phTabs.length;
+        showPh(j, phSeen); phTabs[j].focus();
+      });
+    });
+    showPh(0, false);
+    /* the line draws itself the first time the phone comes into view */
+    new IntersectionObserver((entries, io) => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      io.disconnect(); phSeen = true; showPh(phOn, true);
+    }), { threshold: 0.45 }).observe(phChart);
+  }
+
   /* ---------------- boot ---------------- */
   $$('.split').forEach(splitEl);
   buildScene();
